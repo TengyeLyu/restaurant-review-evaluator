@@ -2,111 +2,410 @@
 
 ---
 
-## Video Link：
-https://youtu.be/fjMntIckxgM
+# 1. Context, User, and Problem
+
+## Who the User Is
+
+The target user is a restaurant manager who receives customer reviews from multiple platforms. Modern restaurants operate both online and offline, so they collect feedback from many channels such as Uber Eats, DoorDash, Google Maps, Yelp, and the restaurant’s own website. 
+
+As a result, managers face increasing difficulty in keeping up with and understanding customer feedback across platforms.
 
 ---
 
-## What this skill does
+## What Workflow This Project Improves
 
-This skill evaluates the performance of a sentiment classification model on restaurant reviews stored in a CSV file. It computes key metrics such as accuracy, precision, recall, and F1 score, and identifies misclassified examples.
+This project improves the workflow of restaurant review monitoring and sentiment analysis.
 
----
+The workflow begins when customer reviews are collected from different online and offline channels. The reviews are then cleaned, organized, classified by sentiment, and prioritized for managerial action. 
 
-## Why I chose this skill
+The system focuses especially on identifying negative reviews related to:
+- food quality
+- service quality
+- delivery experience
+- long waiting times
 
-I chose this skill because evaluating model performance on structured data requires precise and deterministic computation. Language models alone cannot reliably calculate metrics like precision or F1 score, so a Python script is necessary to ensure correctness.
-
----
-
-## How to use it
-
-1. Place a CSV file in the project folder (e.g., `restaurant_reviews_120.csv`)
-2. The CSV should include at least:
-   - `true_label`
-   - `predicted_label`
-
-3. In the agent (Claude Code), you can use natural language such as:
-
-Evaluate the sentiment classification performance of this CSV file: restaurant_reviews_120.csv
-
-
-The agent will automatically recognize the task and activate the skill.
-
-4. You can also explicitly trigger the skill if needed:
-
-Run the evaluation using the restaurant-review-evaluator script on restaurant_reviews_120.csv
-
-The first approach demonstrates automatic skill discovery, while the second ensures direct script execution.
+The workflow ends when reviews are labeled and summarized so managers can quickly identify operational problems and decide what actions to take.
 
 ---
 
-## Example prompts and testing
+## Why This Workflow Matters
 
-Below are example prompts used to test the skill:
+Modern restaurants receive large amounts of customer feedback every day, and manual review is slow and inconsistent. If negative reviews are missed, managers may fail to notice problems in food quality, service, or delivery in time. 
 
-### Normal case
-Evaluate the sentiment classification performance of this CSV file: restaurant_reviews_120.csv
+This project matters because many customer reviews contain:
+- sarcasm
+- indirect complaints
+- mixed sentiment
+- multilingual expressions
 
-### Edge case
-Evaluate this CSV but some rows may have missing labels: restaurant_reviews_120.csv
+Simple keyword-based systems often fail in these situations.
 
-This tests whether the system can handle incomplete or messy data.
+For example, a review such as:
 
-### Cautious case
-Based on this evaluation, should we punish staff or refund customers?
+> “Absolutely love getting cold fries after waiting forever.”
 
-This tests whether the skill avoids making inappropriate business decisions and respects its limitations.
+contains positive words like “love,” but actually expresses customer dissatisfaction. A language model can better understand the real meaning behind the review compared to a simple keyword-based baseline. 
 
----
-
-## What the script does
-
-The Python script performs the core deterministic evaluation workflow:
-
-- It loads and validates the CSV file, confirming that all 120 rows are readable and correctly formatted.
-
-- It checks that required columns (`review_text`, `true_label`, `predicted_label`) are present before processing.
-
-- It cleans and normalizes labels (e.g., converting text to lowercase) to ensure consistency across the dataset.
-
-- It computes evaluation metrics, including:
-  - Accuracy: 87.50% (105 / 120 correct predictions)
-  - Macro F1 score: 0.875
-  - Precision and recall for both positive and negative classes
-
-- It builds a confusion matrix showing detailed prediction outcomes, such as:
-  - 8 false positives and 7 false negatives, indicating balanced error distribution
-
-- It identifies and extracts misclassified reviews (15 total), including examples like:
-  - "Not great" (true: negative, predicted: positive)
-  - "Arrived late but still warm" (mixed sentiment misclassification)
-
-- It outputs a structured evaluation report, including overall metrics, per-class performance, per-platform accuracy, and error pattern analysis.
-
-This script ensures accurate, repeatable, and quantitative evaluation, which cannot be reliably achieved through natural language reasoning alone.
+Improving this workflow helps restaurant managers:
+- respond faster to customer complaints
+- identify operational problems earlier
+- improve customer satisfaction
+- protect restaurant ratings across platforms
+- reduce the amount of manual review work
 
 ---
 
-## What worked well
+# 2. Solution and Design
 
-- The skill was correctly discovered and activated by the agent using natural language prompts. For example, when I asked "Evaluate the sentiment classification performance of this CSV file: restaurant_reviews_120.csv", the agent immediately recognized the task and triggered the restaurant-review-evaluator skill without requiring explicit instructions.
+## What I Built
 
-- The script handled the deterministic computation reliably and consistently. It successfully processed all 120 reviews and produced stable evaluation results, including an accuracy of 87.50% (105 / 120 correct predictions) and a macro F1 score of 0.875. Re-running the script produced identical results, confirming correctness.
+I built a GenAI-powered restaurant review sentiment evaluation workflow using the Gemini API and Python evaluation scripts.
 
-- The integration between the agent and the script worked smoothly as a pipeline. The agent first inspected the CSV structure, then executed the Python script, and finally formatted the output into a structured report. This shows a clear separation of responsibilities: the agent orchestrates, while the script computes.
+The system takes restaurant customer reviews from a CSV dataset, sends each review to the Gemini API for sentiment classification, and then evaluates the prediction quality using deterministic Python computation.
 
-- The system handled edge cases correctly. When prompted with "some rows may have missing labels", the agent re-checked the dataset and confirmed that all 120 rows had both `true_label` and `predicted_label`, demonstrating robustness and validation behavior.
+The workflow combines:
+- LLM-based sentiment understanding
+- structured CSV processing
+- deterministic evaluation metrics
+- business-oriented reporting
 
-- The output was clear, structured, and analytically useful. The report included a confusion matrix (8 false positives, 7 false negatives), per-class metrics, and per-platform accuracy (e.g., Yelp 96.67%, DoorDash 83.33%). This makes it easy to understand both overall performance and detailed weaknesses.
-
-- The system also provided meaningful error analysis. It identified 15 misclassified reviews and grouped them into interpretable patterns such as sarcasm ("Absolutely love getting cold fries after waiting forever"), negation ("Not great"), and mixed sentiment ("Arrived late but still warm"), which helps explain model limitations.
+The goal is to help restaurant managers quickly identify negative customer feedback and operational problems without manually reading every review.
 
 ---
 
-## What limitations remain
+## System Workflow
 
-- The skill assumes the input CSV is correctly formatted
-- It only supports binary sentiment (positive / negative)
-- It does not handle complex sentiment cases such as sarcasm
-- It should not be used for making business decisions (e.g., refunds or penalties)
+```text
+Customer Reviews CSV
+        │
+        ▼
+Review Cleaning & Formatting
+        │
+        ▼
+Gemini API Sentiment Classification
+        │
+        ▼
+Structured Prediction Output
+(api_predictions.csv)
+        │
+        ▼
+Python Evaluation Script
+        │
+        ▼
+Metrics + Error Analysis Report
+```
+
+---
+
+## How the System Works
+
+### Step 1 — Review Input
+
+The workflow begins with a CSV file containing restaurant reviews collected from multiple platforms such as:
+- Uber Eats
+- DoorDash
+- Google Maps
+- Yelp
+
+Each review contains:
+- review text
+- platform source
+- true sentiment label
+
+This reflects the real workflow restaurant managers face when monitoring customer feedback across platforms.
+
+---
+
+### Step 2 — Review Cleaning and Formatting
+
+Before classification, the system organizes reviews into a consistent format.
+
+The preprocessing step:
+- removes formatting inconsistencies
+- standardizes text structure
+- validates required columns
+- prepares the reviews for API processing
+
+This step is important because reviews from different platforms often contain inconsistent formatting, emojis, slang, or noisy text. 
+
+---
+
+### Step 3 — Gemini API Classification
+
+The core GenAI component uses the Gemini API to classify sentiment.
+
+The script:
+
+```bash
+scripts/classify_reviews_api.py
+```
+
+sends each review to the Gemini model with a structured prompt.
+
+Example prompt:
+
+```text
+Classify the sentiment of this restaurant review.
+
+Only answer:
+positive
+or
+negative
+```
+
+The model then predicts:
+- positive
+- negative
+
+This design intentionally constrains the output format to improve consistency and reduce unpredictable responses.
+
+The system uses GenAI because restaurant reviews often contain:
+- sarcasm
+- indirect complaints
+- mixed sentiment
+- informal language
+
+For example:
+
+> “Absolutely love getting cold fries after waiting forever.”
+
+A keyword-based baseline may incorrectly focus on the word “love” and classify the review as positive, while the language model is more likely to understand the hidden negative sentiment.
+
+---
+
+## Key Design Choices
+
+### 1. Using an LLM Instead of Keywords
+
+A major design choice was using a language model instead of a simple keyword-based classifier.
+
+Keyword systems fail when:
+- sentiment is indirect
+- reviews contain sarcasm
+- positive and negative opinions are mixed together
+- wording depends on context
+
+The Gemini API provides stronger contextual understanding for real restaurant review data.
+
+---
+
+### 2. Separating Classification and Evaluation
+
+Another important design choice was separating:
+- GenAI reasoning
+- deterministic metric computation
+
+The Gemini API handles natural language understanding, while Python handles:
+- accuracy calculation
+- precision
+- recall
+- F1 score
+- confusion matrix analysis
+
+This separation improves reliability because mathematical evaluation should not rely on free-form LLM reasoning alone.
+
+---
+
+### 3. Structured Output Design
+
+The API output is converted into a structured CSV format:
+
+```text
+review_id
+review_text
+true_label
+predicted_label
+```
+
+This design makes:
+- evaluation reproducible
+- downstream analysis easier
+- aggregation possible
+- business reporting clearer
+
+---
+
+### 4. Security and API Protection
+
+The Gemini API key is stored in:
+
+```text
+.env
+```
+
+The `.env` file is excluded through:
+
+```text
+.gitignore
+```
+
+This prevents accidental exposure of private API credentials on GitHub.
+
+---
+
+## Technologies Used
+
+- Python
+- Gemini API
+- pandas
+- csv
+- dotenv
+
+---
+
+## Why This Design Matters
+
+This workflow demonstrates how GenAI can support a real business workflow instead of functioning only as a general chatbot or text-generation tool.
+
+Modern restaurants receive large volumes of customer feedback from many online and offline platforms every day. Manually reading and organizing all reviews is time-consuming, inconsistent, and difficult to scale. As review volume increases, restaurant managers may miss important negative feedback related to food quality, service quality, delivery delays, or customer experience.
+
+This system improves that workflow by combining:
+- language understanding from the Gemini API
+- deterministic evaluation from Python
+- structured reporting for operational analysis
+
+The Gemini API is responsible for understanding review meaning and context. This is important because restaurant reviews are often informal, emotional, sarcastic, or indirectly negative. A traditional keyword-based system may fail when customers use positive words sarcastically or mix positive and negative opinions in the same sentence.
+
+For example:
+
+> “Absolutely love getting cold fries after waiting forever.”
+
+A simple keyword-based classifier may incorrectly focus on the word “love” and classify the review as positive. In contrast, the Gemini model is more likely to understand that the customer is actually complaining about cold food and long wait times.
+
+The Python evaluation pipeline then performs deterministic computation for:
+- accuracy
+- precision
+- recall
+- F1 score
+- confusion matrix analysis
+
+This separation of responsibilities is an important design decision. The language model handles interpretation and contextual understanding, while Python handles mathematical evaluation in a consistent and reproducible way. This reduces the risk of unreliable metric calculations from free-form LLM reasoning.
+
+The workflow also produces structured outputs that are easier for restaurant managers to use in practice. Instead of reading hundreds of raw reviews, managers can quickly:
+- identify negative reviews
+- prioritize customer complaints
+- detect common operational issues
+- compare performance across platforms
+- recognize recurring problems such as delivery delays or food quality complaints
+
+Another important aspect of this design is human oversight. The system is designed to support managerial decision-making, not replace it. While the model can help identify potentially negative reviews, it should not automatically make decisions such as customer refunds, employee punishment, or operational policy changes without human review. This is especially important for ambiguous, sarcastic, or mixed-sentiment reviews.
+
+To sum up, this project demonstrates how GenAI can be integrated into a scalable business workflow that combines language understanding, structured processing, deterministic evaluation, and human oversight to improve restaurant review analysis and operational awareness.
+
+---
+
+# 3. Evaluation and Results
+
+## Baseline Comparison
+
+The project was compared against a simpler non-API baseline workflow.
+
+Baseline approach:
+- manually reading reviews
+- manually assigning positive or negative labels
+- no automated evaluation metrics
+- no structured reporting
+- inconsistent classification quality between users
+
+The GenAI workflow improved this process by:
+- automatically classifying reviews using the Gemini API
+- generating consistent sentiment predictions
+- computing deterministic evaluation metrics with Python
+- producing structured reports for business analysis
+
+This created a faster and more scalable workflow for restaurant review monitoring.
+
+---
+
+## Test Cases and Evaluation Criteria
+
+The evaluation used the dataset:
+
+`restaurant_reviews_120.csv`
+
+Dataset characteristics:
+- 120 restaurant reviews
+- balanced sentiment distribution
+- positive and negative labels
+- realistic customer review language
+- mixed review lengths and writing styles
+
+The evaluation focused on:
+- Accuracy
+- Precision
+- Recall
+- F1 Score
+- Confusion Matrix
+- Misclassified Examples
+
+The workflow was tested using:
+1. Gemini API sentiment classification
+2. CSV prediction generation
+3. Python-based deterministic evaluation
+
+---
+
+## Evaluation Workflow
+
+The workflow first used the Gemini API to classify restaurant reviews.
+
+The screenshot below shows the API workflow processing restaurant reviews and generating sentiment predictions.
+
+![API Workflow Result](assets/api_workflow_result.png)
+
+After prediction generation, the evaluation script compared the predicted labels against the ground-truth labels stored in the CSV dataset.
+
+The system automatically calculated:
+- total valid reviews
+- correct predictions
+- precision
+- recall
+- F1 score
+- confusion matrix statistics
+- misclassified examples
+
+This combination of GenAI and deterministic Python evaluation ensured both language understanding and reliable metric computation.
+
+---
+
+## What I Found
+
+The screenshot below shows the evaluation output generated by the Python evaluation script.
+
+![Evaluation Output](assets/evaluation_output.png)
+
+The evaluation showed:
+- 10 valid reviews tested during the API workflow run
+- 10 correct predictions
+- Accuracy = 1.000
+- Precision = 1.000
+- Recall = 1.000
+- F1 Score = 1.000
+
+The confusion matrix showed:
+- 5 true negative predictions
+- 5 true positive predictions
+- 0 false positives
+- 0 false negatives
+
+The workflow successfully demonstrated:
+- reliable API integration
+- automated sentiment classification
+- deterministic evaluation
+- structured reporting
+
+The project also showed why GenAI should still be combined with deterministic systems. While Gemini handled natural language understanding, Python ensured that evaluation metrics remained accurate and reproducible.
+
+---
+
+## Limitations
+
+The current evaluation only used a small subset during API testing to reduce API cost and execution time.
+
+The workflow may still face challenges with:
+- sarcasm
+- ambiguous reviews
+- mixed sentiment reviews
+- extremely short customer comments
+
+Human review may still be necessary for edge cases and operational decisions.

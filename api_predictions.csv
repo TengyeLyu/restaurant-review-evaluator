@@ -1,0 +1,11 @@
+review_id,platform,review_text,true_label,predicted_label
+1,Google Maps,The food was delicious and the service was fast,positive,positive
+2,Yelp,The food was cold and the delivery took too long,negative,negative
+3,Uber Eats,Absolutely love getting cold fries after waiting forever,negative,negative
+4,DoorDash,Great taste but terrible service,negative,negative
+5,Google Maps,"Amazing experience, will come again!",positive,positive
+6,Yelp,Not bad,positive,positive
+7,Uber Eats,The driver was rude and the food arrived late,negative,negative
+8,DoorDash,Pretty good overall,positive,positive
+9,Google Maps,Food was okay but the wait time was unacceptable,negative,negative
+10,Yelp,Excellent quality and friendly staff,positive,positive
