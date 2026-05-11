@@ -99,6 +99,12 @@ Metrics + Error Analysis Report
 
 ## How the System Works
 
+### Two important command：
+1. python3 .claude/skills/restaurant-review-evaluator/scripts/classify_reviews_api.py
+  The workflow will generate sentiment predictions through the Gemini API.
+2. python3 .claude/skills/restaurant-review-evaluator/scripts/evaluate_reviews.py api_predictions.csv
+  Python performs deterministic evaluation to ensure reproducible metrics.
+
 ### Step 1 — Review Input
 
 The workflow begins with a CSV file containing restaurant reviews collected from multiple platforms such as:
@@ -395,6 +401,11 @@ The workflow successfully demonstrated:
 - structured reporting
 
 The project also showed why GenAI should still be combined with deterministic systems. While Gemini handled natural language understanding, Python ensured that evaluation metrics remained accurate and reproducible.
+
+---
+# 4. Artifact snapshot: 
+
+## Video Link: 
 
 ---
 
