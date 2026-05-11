@@ -102,6 +102,7 @@ Metrics + Error Analysis Report
 ### Two important command：
 1. python3 .claude/skills/restaurant-review-evaluator/scripts/classify_reviews_api.py
   The workflow will generate sentiment predictions through the Gemini API.
+
 2. python3 .claude/skills/restaurant-review-evaluator/scripts/evaluate_reviews.py api_predictions.csv
   Python performs deterministic evaluation to ensure reproducible metrics.
 
@@ -405,7 +406,7 @@ The project also showed why GenAI should still be combined with deterministic sy
 ---
 # 4. Artifact snapshot: 
 
-## Video Link: 
+## Video Link: https://youtu.be/G3bD43x-_tA
 
 ---
 
